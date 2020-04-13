@@ -38,43 +38,41 @@
       @sort-change="sortChange"
     >
       <el-table-column label="序号" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
+        <template slot-scope="{$index}">
+          <span>{{ $index+1 }}</span>
         </template>
       </el-table-column>
       <el-table-column label="姓名" width="110px" align="center">
         <template slot-scope="{row}">
+          <span>{{ row.familyName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="职业" width="110px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.profession }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="职务" width="110px" align="center">
+        <template slot-scope="{row}">
           <span>{{ row.author }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="时间" width="150px" align="center">
+       <el-table-column label="基础等级" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.basicLevel }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标题" min-width="150px">
+       <el-table-column label="冒险等级" width="110px" align="center">
         <template slot-scope="{row}">
-          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
-          <el-tag>{{ row.type | typeFilter }}</el-tag>
+          <span>{{ row.adventureLevel }}</span>
         </template>
       </el-table-column>
-      <el-table-column v-if="showReviewer" label="Reviewer" width="110px" align="center">
+      <el-table-column label="联络地址" min-width="200px">
         <template slot-scope="{row}">
-          <span style="color:red;">{{ row.reviewer }}</span>
+          <span>{{ row.contactAddress }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="重要性" width="80px">
-        <template slot-scope="{row}">
-          <svg-icon v-for="n in + row.importance" :key="n" icon-class="star" class="meta-item__icon" />
-        </template>
-      </el-table-column>
-      <el-table-column label="读者数" align="center" width="95">
-        <template slot-scope="{row}">
-          <span v-if="row.pageviews" class="link-type" @click="handleFetchPv(row.pageviews)">{{ row.pageviews }}</span>
-          <span v-else>0</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" class-name="status-col" width="100">
+      <el-table-column label="状态" class-name="status-col" width="100px">
         <template slot-scope="{row}">
           <el-tag :type="row.status | statusFilter">
             {{ row.status }}
@@ -87,10 +85,10 @@
             编辑
           </el-button>
           <el-button v-if="row.status!='published'" size="mini" type="success" @click="handleModifyStatus(row,'published')">
-            发布
+            详情
           </el-button>
           <el-button v-if="row.status!='draft'" size="mini" @click="handleModifyStatus(row,'draft')">
-            草稿
+            详情
           </el-button>
           <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
             删除
@@ -149,9 +147,7 @@
 </template>
 
 <script>
-// eslint-disable-next-line no-unused-vars
-// import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
-import fetchList from '@/api/table'
+import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 // eslint-disable-next-line no-unused-vars
 import { parseTime } from '@/utils'
@@ -190,7 +186,7 @@ export default {
   data() {
     return {
       tableKey: 0,
-      list: [{ 'id': '1', 'timestamp': '2020-04-11 20:50', 'title': 'Smvhshtdy Pqtik Eexhmlsf Egkgnew Gnifdu Mynldrv Twgrlm Ssperwje', 'type': 'CN', 'author': 'lili', importance: 3, 'pageviews': '1000', status: 'published' }],
+      list: [],
       total: 0,
       listLoading: false,
       listQuery: {
@@ -232,16 +228,15 @@ export default {
     }
   },
   created() {
-    // this.getList()
+    this.getList()
   },
   methods: {
     getList() {
-      this.listLoading = true
+      // this.listLoading = true
       fetchList().then(response => {
-        // this.list = response.data.items
-        this.list = null
-        // this.total = response.data.total
-        this.total = 1
+        this.list = response.data.records
+        // this.list = null
+        this.total = response.data.total
 
         // Just to simulate the time of the request
         // setTimeout(() => {
@@ -274,17 +269,17 @@ export default {
       }
       this.handleFilter()
     },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
-    },
+    // resetTemp() {
+    //   this.temp = {
+    //     id: undefined,
+    //     importance: 1,
+    //     remark: '',
+    //     timestamp: new Date(),
+    //     title: '',
+    //     status: 'published',
+    //     type: ''
+    //   }
+    // },
     handleCreate() {
       this.resetTemp()
       this.dialogStatus = 'create'
